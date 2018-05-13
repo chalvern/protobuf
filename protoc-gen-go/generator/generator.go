@@ -1147,6 +1147,7 @@ func (g *Generator) generate(file *FileDescriptor) {
 			continue
 		}
 		g.generateMessage(desc)
+		g.generateMessageMock(desc)
 	}
 	for _, ext := range g.file.ext {
 		g.generateExtension(ext)
