@@ -70,9 +70,9 @@ premonition: the installition would overwrite the official protoc-gen-go!!!
 ```bash
 go get -v github.com/chalvern/protobuf
 
-mv $(GOPATH)/github.com/chalvern $(GOPATH)/github.com/golang
+mv $GOPATH/src/github.com/chalvern $GOPATH/github.com/golang
 
-cd $(GOPATH)/github.com/golang/protobuf/protoc-gen-go
+cd $GOPATH/src/github.com/golang/protobuf/protoc-gen-go
 
 go install -v
 ```
