@@ -1,6 +1,8 @@
 package generator
 
 import (
+	"strings"
+
 	"github.com/golang/protobuf/protoc-gen-go/descriptor"
 )
 
@@ -22,7 +24,7 @@ func (g *Generator) generateMessageMock(message *Descriptor) {
 	// mock comments
 	g.P("// mock parts")
 	tmpName := Annotate(message.file, message.path, ccTypeName)
-	g.P("var ", tmpName, "Mock", " = ", tmpName)
+	g.P("var ", tmpName, "Mock", " = ", tmpName, "{")
 	g.In()
 
 	// allocNames finds a conflict-free variation of the given strings,
@@ -54,9 +56,35 @@ func (g *Generator) generateMessageMock(message *Descriptor) {
 
 		fieldNames[field] = fieldName
 		fieldTypes[field] = typename
-		g.P(Annotate(message.file, fieldName), "\t", typename)
+		g.P(fieldName, " : ", valueOfType(field, typename), ",")
 	}
 
 	g.P("}")
 	g.P("// end")
+}
+
+func valueOfType(field *descriptor.FieldDescriptorProto, typeName string) string {
+	switch *field.Type {
+	case descriptor.FieldDescriptorProto_TYPE_BOOL:
+		return "true"
+	case descriptor.FieldDescriptorProto_TYPE_FLOAT,
+		descriptor.FieldDescriptorProto_TYPE_DOUBLE:
+		return "2018.0513"
+	case descriptor.FieldDescriptorProto_TYPE_INT32,
+		descriptor.FieldDescriptorProto_TYPE_UINT32,
+		descriptor.FieldDescriptorProto_TYPE_FIXED32,
+		descriptor.FieldDescriptorProto_TYPE_SFIXED32,
+		descriptor.FieldDescriptorProto_TYPE_INT64,
+		descriptor.FieldDescriptorProto_TYPE_UINT64,
+		descriptor.FieldDescriptorProto_TYPE_FIXED64,
+		descriptor.FieldDescriptorProto_TYPE_SFIXED64:
+		return "2018"
+	case descriptor.FieldDescriptorProto_TYPE_STRING:
+		return "\"abcdefg\""
+	case descriptor.FieldDescriptorProto_TYPE_MESSAGE:
+		// This is only possible for oneof fields.
+		return strings.Replace(typeName, "*", "&", -1) + "Mock"
+	default:
+		return "nil"
+	}
 }
